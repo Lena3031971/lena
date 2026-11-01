@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Движение по инерции. Свободное движение тела — тренажёр</title>
+<style>
+  :root{
+    --deep:#123a6b;
+    --blue:#1b5fb0;
+    --blue-light:#d9ecff;
+    --bg:#e6f3fd;
+    --ok:#1e8e3e;
+    --err:#d93025;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+    background:linear-gradient(180deg,#e6f3fd 0%,#f4fbff 60%,#eaf6ff 100%);
+    color:var(--deep);
+    padding:24px 16px 60px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+
+  .head{text-align:center;margin-bottom:22px;}
+  .head h1{
+    font-size:26px;margin:0 0 6px;color:var(--deep);letter-spacing:.2px;
+  }
+  .head p{margin:0;color:#4a6f9c;font-size:14px;}
+
+  .card{
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(23,62,120,.13);
+    padding:28px 30px;
+    margin-bottom:22px;
+  }
+  h2{font-size:21px;margin:0 0 14px;}
+  h3{font-size:17px;margin:0 0 10px;}
+
+  .hidden{display:none !important;}
+
+  /* ---------- экран 1 ---------- */
+  .field{margin-bottom:16px;display:flex;flex-direction:column;max-width:420px;}
+  .field label{font-size:14px;font-weight:600;margin-bottom:6px;color:#2b5588;}
+  .field input{
+    padding:11px 14px;font-size:16px;border:2px solid #c3ddf5;border-radius:12px;
+    background:#fbfdff;box-shadow:0 3px 10px rgba(23,62,120,.07);
+    outline:none;transition:border-color .18s, box-shadow .18s;
+  }
+  .field input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(27,95,176,.14);}
+
+  .btn{
+    padding:12px 26px;border-radius:12px;border:none;font-size:16px;font-weight:600;
+    cursor:pointer;transition:transform .12s, background .18s, box-shadow .18s;
+    font-family:inherit;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--blue);color:#fff;box-shadow:0 6px 16px rgba(27,95,176,.32);}
+  .btn-primary:hover{background:#164e93;}
+  .btn-ghost{background:#eaf4ff;color:var(--deep);border:2px solid #b8d7f3;}
+  .btn-ghost:hover{background:#dcecfd;}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+
+  .err-msg{color:var(--err);font-size:14px;min-height:20px;margin-top:6px;font-weight:600;}
+
+  /* ---------- экран 2 ---------- */
+  .hint-text{color:#4a6f9c;font-size:14px;margin:0 0 14px;line-height:1.5;}
+  .theme-switch{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .btn-tab{
+    background:#eaf4ff;color:var(--deep);border:2px solid #b8d7f3;
+    padding:10px 18px;border-radius:12px;font-weight:600;cursor:pointer;font-size:15px;
+    transition:all .18s;font-family:inherit;
+  }
+  .btn-tab:hover{background:#dbeafc;}
+  .btn-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 14px rgba(27,95,176,.28);}
+
+  .variant-label{
+    display:block;
+    font-size:14px;font-weight:600;color:#2b5588;margin:0 0 8px;
+    text-transform:uppercase;letter-spacing:.5px;
+  }
+  .variant-block{
+    margin-bottom:18px;
+    padding-top:14px;
+    border-top:1px dashed #cfe6fb;
+  }
+  .variant-select{
+    width:100%;
+    max-width:640px;
+    padding:12px 42px 12px 14px;
+    font-size:15px;
+    font-family:inherit;
+    font-weight:600;
+    color:var(--deep);
+    background-color:#fff;
+    background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath fill='%23123a6b' d='M7 9 0 0h14z'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 16px center;
+    border:2px solid #b8d7f3;
+    border-radius:12px;
+    box-shadow:0 3px 10px rgba(23,62,120,.08);
+    outline:none;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    transition:border-color .18s, box-shadow .18s;
+  }
+  .variant-select:hover{border-color:#8ab6e0;}
+  .variant-select:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 4px rgba(27,95,176,.14);
+  }
+
+  .builder{
+    background:#fff;border-radius:16px;padding:22px 16px;
+    box-shadow:0 8px 24px rgba(23,62,120,.10);
+    border:1px solid #e2f0fd;
+    margin-bottom:20px;
+  }
+  .slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;}
+  .slot{
+    position:relative;
+    min-width:62px;height:62px;padding:0 12px;
+    display:flex;align-items:center;justify-content:center;
+    border:2px dashed #8ab6e0;border-radius:14px;
+    background:#f4fbff;color:var(--deep);
+    font-size:21px;font-weight:700;
+    transition:background .16s, transform .16s, border-color .16s;
+  }
+  .slot.filled{border-style:solid;border-color:var(--blue);background:var(--blue-light);}
+  .slot.over{background:#c6e4ff;transform:scale(1.06);}
+  .slot.error{border-color:var(--err);background:#ffe9e7;animation:shake .32s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-4px);}
+    75%{transform:translateX(4px);}
+  }
+  .slot .tip{
+    display:none;position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);
+    width:220px;background:var(--err);color:#fff;font-size:12px;font-weight:500;
+    line-height:1.35;padding:9px 11px;border-radius:9px;z-index:60;
+    box-shadow:0 8px 20px rgba(0,0,0,.22);text-align:center;
+  }
+  .slot .tip::before{
+    content:"";position:absolute;bottom:100%;left:50%;transform:translateX(-50%);
+    border:7px solid transparent;border-bottom-color:var(--err);
+  }
+  .slot.error:hover .tip{display:block;}
+
+  .cards{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+    padding:16px;border-radius:16px;background:#f7fcff;border:1px dashed #cfe6fb;
+  }
+  .fcard{
+    padding:13px 20px;font-size:20px;font-weight:700;color:var(--deep);
+    background:var(--blue-light);border:2px solid var(--deep);border-radius:12px;
+    cursor:grab;box-shadow:0 4px 12px rgba(18,58,107,.18);
+    transition:transform .15s, box-shadow .15s, background .15s;
+    user-select:none;
+  }
+  .fcard:hover{transform:scale(1.07);box-shadow:0 8px 18px rgba(18,58,107,.26);}
+  .fcard.selected{outline:3px solid #ffb300;transform:scale(1.07);}
+  .fcard.dragging{opacity:.45;}
+
+  .msg{margin-top:16px;font-size:14px;font-weight:600;line-height:1.5;}
+  .msg.ok{color:var(--ok);}
+  .msg.err{color:var(--err);}
+  .msg ul{margin:8px 0 0 18px;padding:0;font-weight:500;}
+
+  .correct-answer{
+    margin-top:14px;
+    padding:12px 14px;
+    background:#eaf7ee;
+    border:2px solid var(--ok);
+    border-radius:12px;
+    color:var(--deep);
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+  }
+  .correct-answer .label{
+    color:var(--ok);
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:.7px;
+    text-transform:uppercase;
+    margin-right:4px;
+  }
+  .ans-chip{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:36px;
+    padding:5px 11px;
+    background:#fff;
+    border:2px solid var(--ok);
+    border-radius:8px;
+    font-size:17px;
+    font-weight:700;
+    color:var(--deep);
+  }
+
+  /* ---------- экран 3 ---------- */
+  .tasks{display:flex;flex-direction:column;gap:14px;}
+  .task{
+    background:#f6fbff;border:2px solid #d7ebfd;border-radius:16px;
+    padding:16px 18px;transition:border-color .18s, background .18s;
+  }
+  .task.correct{border-color:var(--ok);background:#f0fbf2;}
+  .task.wrong{border-color:var(--err);background:#fff3f2;}
+  .task-head{
+    font-size:13px;font-weight:700;color:var(--blue);text-transform:uppercase;
+    letter-spacing:.6px;margin-bottom:8px;
+  }
+  .task-text{margin:0 0 12px;font-size:15.5px;line-height:1.55;}
+  .task-answer{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .task-answer label{font-size:14px;font-weight:600;color:#2b5588;}
+  .task-answer input{
+    width:140px;padding:9px 12px;font-size:16px;border:2px solid #a9cdec;
+    border-radius:10px;outline:none;background:#fff;font-family:inherit;
+    transition:border-color .18s, box-shadow .18s;
+  }
+  .task-answer input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(27,95,176,.13);}
+  .unit{font-size:15px;font-weight:700;color:#2b5588;}
+  .task-feedback{margin-top:10px;font-size:14px;line-height:1.5;}
+  .ok{color:var(--ok);font-weight:700;}
+  .bad{color:var(--err);font-weight:700;}
+  .sol{margin-top:6px;color:#2b5588;font-size:14px;background:#eef7ff;
+       padding:9px 12px;border-radius:10px;border-left:4px solid var(--blue);}
+
+  .result{border-radius:16px;padding:20px 22px;margin-top:22px;text-align:center;}
+  .result-perfect{background:#e8f9ec;border:2px solid var(--ok);}
+  .result-mid{background:#fff6e5;border:2px solid #e0a800;}
+  .result .big{font-size:26px;font-weight:800;margin-bottom:6px;}
+  .result-perfect .big{color:var(--ok);}
+  .result-mid .big{color:#a87900;}
+  .result p{margin:0;font-size:15px;}
+
+  .report{margin-top:22px;background:#f5faff;border:2px solid #cfe6fb;border-radius:16px;padding:20px;}
+  .report pre{
+    background:#fff;border:1px solid #d7ebfd;border-radius:10px;padding:14px;
+    font-size:13.5px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;
+    font-family:"Consolas","Courier New",monospace;color:#123a6b;margin:0 0 14px;
+  }
+  .rep-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:14px;}
+  .rep-table th,.rep-table td{border:1px solid #cfe6fb;padding:8px 10px;text-align:left;}
+  .rep-table th{background:#e3f0fc;font-weight:700;}
+
+  .toast{
+    display:inline-block;margin-left:12px;color:var(--ok);font-weight:700;font-size:14px;
+    opacity:0;transition:opacity .25s;
+  }
+  .toast.show{opacity:1;}
+
+  @media (max-width:560px){
+    .card{padding:20px 16px;}
+    .slot{min-width:52px;height:52px;font-size:18px;padding:0 9px;}
+    .fcard{font-size:17px;padding:11px 15px;}
+    .head h1{font-size:20px;}
+    .variant-select{font-size:14px;padding:11px 38px 11px 12px;}
+    .slot .tip{width:170px;font-size:11px;}
+    .ans-chip{font-size:15px;min-width:30px;padding:4px 9px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <h1>Движение по инерции. Свободное движение тела</h1>
+    <p>Электронный тренажёр для студентов 1 курса • физика • практикум</p>
+  </header>
+
+  <!-- ================= ЭКРАН 1 ================= -->
+  <section id="screen-login" class="card">
+    <h2>Идентификация студента</h2>
+    <p class="hint-text">Введите свои данные — они попадут в отчёт для преподавателя.</p>
+    <div class="field">
+      <label for="inp-surname">Фамилия студента</label>
+      <input id="inp-surname" type="text" placeholder="Например, Иванов" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="inp-group">№ группы</label>
+      <input id="inp-group" type="text" placeholder="Например, ТМ-11" autocomplete="off">
+    </div>
+    <div id="login-err" class="err-msg"></div>
+    <button id="btn-start" class="btn btn-primary">Начать работу</button>
+  </section>
+
+  <!-- ================= ЭКРАН 2 ================= -->
+  <section id="screen-formula" class="card hidden">
+    <h2>Соберите формулу</h2>
+    <p class="hint-text">
+      Выберите тему и конкретную формулу из выпадающего списка, затем перетащите карточки в слоты
+      так, чтобы получилась верная формула. Карточку можно перетащить мышью или выбрать кликом, а
+      затем кликнуть по нужному слоту. Чтобы убрать карточку из слота — кликните по нему.
+    </p>
+
+    <div class="theme-switch">
+      <button class="btn-tab active" data-theme="inertia">Движение по инерции</button>
+      <button class="btn-tab" data-theme="freefall">Свободное движение тела</button>
+    </div>
+
+    <div class="variant-block">
+      <label for="variant-select" class="variant-label">Выберите формулу:</label>
+      <select id="variant-select" class="variant-select"></select>
+    </div>
+
+    <p class="hint-text" id="formula-prompt"></p>
+
+    <div class="builder">
+      <div class="slots" id="slots"></div>
+    </div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="msg" id="formula-msg"></div>
+
+    <div class="row">
+      <button id="btn-check-formula" class="btn btn-primary">Проверить</button>
+      <button id="btn-reset-formula" class="btn btn-ghost">Сбросить</button>
+    </div>
+  </section>
+
+  <!-- ================= ЭКРАН 3 ================= -->
+  <section id="screen-tasks" class="card hidden">
+    <h2>Реши 5 задач по этой формуле</h2>
+    <p class="hint-text" id="tasks-theme"></p>
+
+    <div id="tasks" class="tasks"></div>
+
+    <div class="row">
+      <button id="btn-check-tasks" class="btn btn-primary">Проверить ответы</button>
+      <button id="btn-back" class="btn btn-ghost">Вернуться к формуле</button>
+    </div>
+
+    <div id="result" class="result hidden"></div>
+
+    <div id="report" class="report hidden">
+      <h3>Отчёт для преподавателя</h3>
+      <table class="rep-table" id="rep-table"></table>
+      <pre id="csv"></pre>
+      <button id="btn-copy" class="btn btn-primary">Скопировать в буфер</button>
+      <span class="toast" id="toast">Скопировано!</span>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =====================================================
+     ДАННЫЕ ФОРМУЛ
+  ===================================================== */
+  const FORMULAS = {
+    inertia: {
+      label: 'Движение по инерции',
+      variants: [
+        {
+          id: 'speed',
+          label: 'Скорость при равномерном движении',
+          prompt: 'Соберите формулу скорости при равномерном прямолинейном движении (движение по инерции).',
+          target: ['v','=','S','/','t'],
+          hints: [
+            'Слева записывают искомую величину — скорость v.',
+            'Далее ставится знак равенства «=».',
+            'В числителе дроби — пройденный путь S.',
+            'Дробная черта — это знак деления «/».',
+            'В знаменателе — время движения t.'
+          ],
+          pool: ['v','=','S','/','t','·','g','h','m','x']
+        },
+        {
+          id: 'path',
+          label: 'Путь при равномерном движении',
+          prompt: 'Соберите формулу пути при равномерном прямолинейном движении (движение по инерции).',
+          target: ['S','=','v','·','t'],
+          hints: [
+            'Слева записывают искомую величину — путь S.',
+            'Далее ставится знак равенства «=».',
+            'В правой части — скорость v: при равномерном движении она постоянна.',
+            'Скорость и время перемножаются, нужен знак умножения «·».',
+            'Последний элемент формулы — время t.'
+          ],
+          pool: ['S','=','v','·','t','g','h','+','m','x']
+        }
+      ]
+    },
+
+    freefall: {
+      label: 'Свободное движение тела',
+      variants: [
+        {
+          id: 'v0',
+          label: 'Скорость при свободном падении без начальной скорости',
+          prompt: 'Соберите формулу скорости при свободном падении без начальной скорости.',
+          target: ['v','=','g','·','t'],
+          hints: [
+            'Слева записывают искомую величину — скорость v.',
+            'Далее ставится знак равенства «=».',
+            'В правой части — ускорение свободного падения g.',
+            'Между g и t ставится знак умножения «·».',
+            'Последний элемент формулы — время падения t.'
+          ],
+          pool: ['v','=','g','·','t','+','v₀','/','2','h','m','t²']
+        },
+        {
+          id: 'vinit',
+          label: 'Скорость при свободном падении с начальной скоростью',
+          prompt: 'Соберите формулу скорости при свободном падении, если начальная скорость направлена так же, как ускорение g.',
+          target: ['v','=','v₀','+','g','·','t'],
+          hints: [
+            'Слева записывают конечную скорость v.',
+            'Далее ставится знак равенства «=».',
+            'Первое слагаемое — начальная скорость v₀.',
+            'Между слагаемыми знак сложения «+» (направления v₀ и g совпадают).',
+            'Затем ускорение свободного падения g.',
+            'После g ставится знак умножения «·».',
+            'Последний элемент — время движения t.'
+          ],
+          pool: ['v','=','v₀','+','g','·','t','−','/','2','h','t²']
+        },
+        {
+          id: 'h0',
+          label: 'Перемещение (высота падения) при нулевой начальной скорости',
+          prompt: 'Соберите формулу высоты (перемещения) при свободном падении без начальной скорости.',
+          target: ['h','=','g','·','t²','/','2'],
+          hints: [
+            'Слева записывают искомую величину — высоту (перемещение) h.',
+            'Далее ставится знак равенства «=».',
+            'В правой части — ускорение свободного падения g.',
+            'Между g и t² ставится знак умножения «·».',
+            'Далее следует квадрат времени t².',
+            'Затем знак деления «/».',
+            'Двойка в знаменателе.'
+          ],
+          pool: ['h','=','g','·','t²','/','2','+','v₀','v','S','m']
+        },
+        {
+          id: 'hinit',
+          label: 'Перемещение при наличии начальной скорости',
+          prompt: 'Соберите формулу перемещения (высоты) при свободном падении с начальной скоростью.',
+          target: ['h','=','v₀','·','t','+','g','·','t²','/','2'],
+          hints: [
+            'Слева записывают искомую величину — перемещение (высоту) h.',
+            'Далее ставится знак равенства «=».',
+            'Первое слагаемое начинается с начальной скорости v₀.',
+            'Между v₀ и t ставится знак умножения «·».',
+            'Далее время t — слагаемое v₀·t готово.',
+            'Между слагаемыми ставится знак сложения «+».',
+            'Второе слагаемое начинается с ускорения свободного падения g.',
+            'После g ставится знак умножения «·».',
+            'Далее квадрат времени t².',
+            'Затем знак деления «/».',
+            'Последний элемент — двойка в знаменателе.'
+          ],
+          pool: ['h','=','v₀','·','t','+','g','·','t²','/','2','−','v','S','m']
+        },
+        {
+          id: 'vh',
+          label: 'Связь скорости и высоты (без времени)',
+          prompt: 'Соберите формулу, связывающую скорость и высоту при свободном падении (без времени).',
+          target: ['v²','=','v₀²','+','2','·','g','·','h'],
+          hints: [
+            'Слева записывают квадрат конечной скорости v².',
+            'Далее ставится знак равенства «=».',
+            'Первое слагаемое — квадрат начальной скорости v₀².',
+            'Между слагаемыми знак сложения «+».',
+            'Далее коэффициент 2 из формулы v² = v₀² + 2gh.',
+            'После двойки ставится знак умножения «·».',
+            'Затем ускорение свободного падения g.',
+            'Снова знак умножения «·».',
+            'Последний элемент — высота h.'
+          ],
+          pool: ['v²','=','v₀²','+','2','·','g','·','h','−','t','t²','v','m']
+        },
+        {
+          id: 'y',
+          label: 'Координата (высота над землёй) при вертикальном движении',
+          prompt: 'Соберите уравнение координаты (высоты над землёй) при вертикальном движении; ось Oy направлена вверх.',
+          target: ['y','=','y₀','+','v₀y','·','t','−','g','·','t²','/','2'],
+          hints: [
+            'Слева записывают искомую координату (высоту) y.',
+            'Далее ставится знак равенства «=».',
+            'Первое слагаемое — начальная координата y₀.',
+            'Между слагаемыми знак сложения «+».',
+            'Далее проекция начальной скорости на ось Oy — v₀y.',
+            'После v₀y ставится знак умножения «·».',
+            'Затем время t.',
+            'Ось Oy направлена вверх, поэтому перед слагаемым с g стоит знак «−».',
+            'Далее ускорение свободного падения g.',
+            'После g снова знак умножения «·».',
+            'Затем квадрат времени t².',
+            'Далее знак деления «/».',
+            'Последний элемент — двойка в знаменателе.'
+          ],
+          pool: ['y','=','y₀','+','v₀y','·','t','−','g','·','t²','/','2','v','S','m']
+        }
+      ]
+    }
+  };
+
+  /* =====================================================
+     БАНК ЗАДАЧ (по 30 на каждую тему)
+  ===================================================== */
+  const BANK = {
+    inertia: [
+      {text:'Автомобиль едет по прямой дороге с постоянной скоростью 72 км/ч. Какой путь он пройдёт за 15 минут?', unit:'м', answer:18000,
+       solution:'v = 72 км/ч = 20 м/с; t = 15 мин = 900 с; S = v·t = 20·900 = 18 000 м.'},
+      {text:'Автомеханик идёт по цеху со скоростью 1,2 м/с. В начальный момент он находится на отметке 3 м от входа. Где он будет через 40 секунд? (ответ — координата в метрах)', unit:'м', answer:51,
+       solution:'x = x₀ + v·t = 3 + 1,2·40 = 3 + 48 = 51 м.'},
+      {text:'Грузовик двигался равномерно со скоростью 90 км/ч, затем водитель выключил двигатель, и машина катится по инерции. Какой путь пройдёт грузовик за 20 с после выключения двигателя?', unit:'м', answer:500,
+       solution:'v = 90 км/ч = 25 м/с; S = v·t = 25·20 = 500 м.'},
+      {text:'Тележка катится по инерции равномерно со скоростью 2,5 м/с. Какой путь она пройдёт за 40 с?', unit:'м', answer:100,
+       solution:'S = v·t = 2,5·40 = 100 м.'},
+      {text:'Конвейер перемещает деталь с постоянной скоростью 0,8 м/с. За какое время деталь пройдёт 24 м?', unit:'с', answer:30,
+       solution:'t = S/v = 24/0,8 = 30 с.'},
+      {text:'Сварщик катит баллон со скоростью 1,5 м/с. За какое время баллон переместится на 12 м?', unit:'с', answer:8,
+       solution:'t = S/v = 12/1,5 = 8 с.'},
+      {text:'Автомобиль на прямом участке за 20 с равномерно проходит 300 м. Найдите скорость автомобиля.', unit:'м/с', answer:15,
+       solution:'v = S/t = 300/20 = 15 м/с.'},
+      {text:'Груз массой 200 кг движется по инерции со скоростью 3 м/с. Чему равен импульс груза?', unit:'кг·м/с', answer:600,
+       solution:'p = m·v = 200·3 = 600 кг·м/с.'},
+      {text:'Автомобиль массой 1,5 т едет со скоростью 20 м/с. Чему равен его импульс?', unit:'кг·м/с', answer:30000,
+       solution:'m = 1,5 т = 1500 кг; p = m·v = 1500·20 = 30 000 кг·м/с.'},
+      {text:'Поезд метро проходит 1,2 км за 60 с, двигаясь равномерно. Найдите скорость поезда.', unit:'м/с', answer:20,
+       solution:'S = 1,2 км = 1200 м; v = 1200/60 = 20 м/с.'},
+      {text:'Мотоцикл едет равномерно со скоростью 54 км/ч. Какой путь он пройдёт за 10 с?', unit:'м', answer:150,
+       solution:'v = 54 км/ч = 15 м/с; S = 15·10 = 150 м.'},
+      {text:'Рабочий толкает тележку равномерно со скоростью 1,8 м/с. Какой путь тележка пройдёт за 25 с?', unit:'м', answer:45,
+       solution:'S = v·t = 1,8·25 = 45 м.'},
+      {text:'Деталь на ленте конвейера движется со скоростью 0,5 м/с. За какое время она пройдёт 7,5 м?', unit:'с', answer:15,
+       solution:'t = S/v = 7,5/0,5 = 15 с.'},
+      {text:'Велосипедист едет равномерно со скоростью 5 м/с. Какой путь он проедет за 2 минуты?', unit:'м', answer:600,
+       solution:'t = 2 мин = 120 с; S = 5·120 = 600 м.'},
+      {text:'Автомобиль движется равномерно и за 12 с проходит 180 м. Найдите скорость автомобиля.', unit:'м/с', answer:15,
+       solution:'v = S/t = 180/12 = 15 м/с.'},
+      {text:'Брусок массой 4 кг движется по инерции со скоростью 6 м/с. Найдите импульс бруска.', unit:'кг·м/с', answer:24,
+       solution:'p = m·v = 4·6 = 24 кг·м/с.'},
+      {text:'Движение тела задано уравнением x = 5 + 3t. Определите координату тела через 10 с.', unit:'м', answer:35,
+       solution:'x = 5 + 3·10 = 35 м.'},
+      {text:'Уравнение движения тела x = −2 + 4t. Найдите координату тела через 15 с.', unit:'м', answer:58,
+       solution:'x = −2 + 4·15 = −2 + 60 = 58 м.'},
+      {text:'Уравнение движения тела x = 10 − 2t. Найдите координату тела через 8 с.', unit:'м', answer:-6,
+       solution:'x = 10 − 2·8 = 10 − 16 = −6 м.'},
+      {text:'Тело движется равномерно со скоростью 8 м/с из точки с координатой 12 м. Какой будет координата тела через 5 с?', unit:'м', answer:52,
+       solution:'x = x₀ + v·t = 12 + 8·5 = 52 м.'},
+      {text:'Автомобиль проехал 90 км за 1,5 ч, двигаясь равномерно. Найдите скорость автомобиля в км/ч.', unit:'км/ч', answer:60,
+       solution:'v = S/t = 90/1,5 = 60 км/ч.'},
+      {text:'Грузовик массой 8 т движется со скоростью 15 м/с. Чему равен его импульс?', unit:'кг·м/с', answer:120000,
+       solution:'m = 8 т = 8000 кг; p = m·v = 8000·15 = 120 000 кг·м/с.'},
+      {text:'За 0,5 мин тележка равномерно прошла 90 м. Найдите скорость тележки.', unit:'м/с', answer:3,
+       solution:'t = 0,5 мин = 30 с; v = 90/30 = 3 м/с.'},
+      {text:'С какой скоростью должен двигаться конвейер, чтобы деталь прошла 6 м за 4 с?', unit:'м/с', answer:1.5,
+       solution:'v = S/t = 6/4 = 1,5 м/с.'},
+      {text:'Автомобиль проехал 45 км со скоростью 90 км/ч. Сколько минут он был в пути?', unit:'мин', answer:30,
+       solution:'t = S/v = 45/90 = 0,5 ч = 30 мин.'},
+      {text:'За сколько секунд тело, движущееся равномерно со скоростью 12 м/с, пройдёт 300 м?', unit:'с', answer:25,
+       solution:'t = S/v = 300/12 = 25 с.'},
+      {text:'Тележка движется по инерции со скоростью 4 м/с. Какой путь она пройдёт за 12 с?', unit:'м', answer:48,
+       solution:'S = v·t = 4·12 = 48 м.'},
+      {text:'Деталь массой 500 кг движется со скоростью 12 м/с. Найдите её импульс.', unit:'кг·м/с', answer:6000,
+       solution:'p = m·v = 500·12 = 6000 кг·м/с.'},
+      {text:'Поезд движется равномерно со скоростью 20 м/с. Какой путь он пройдёт за 45 с?', unit:'м', answer:900,
+       solution:'S = v·t = 20·45 = 900 м.'},
+      {text:'Координата тела меняется по закону x = 4 + 2,5t. Через сколько секунд координата станет равной 29 м?', unit:'с', answer:10,
+       solution:'29 = 4 + 2,5t  ⇒  2,5t = 25  ⇒  t = 10 с.'}
+    ],
+    freefall: [
+      {text:'Деталь случайно упала с высоты 5 м. Сколько времени она падала? Сопротивлением воздуха пренебречь, g = 10 м/с².', unit:'с', answer:1,
+       solution:'h = g·t²/2  ⇒  5 = 5t²  ⇒  t² = 1  ⇒  t = 1 с.'},
+      {text:'Сварщик уронил электрод с высоты 20 м. Сколько времени он падал? g = 10 м/с².', unit:'с', answer:2,
+       solution:'20 = 5t²  ⇒  t² = 4  ⇒  t = 2 с.'},
+      {text:'Груз падает с высоты 45 м без начальной скорости. Найдите время падения. g = 10 м/с².', unit:'с', answer:3,
+       solution:'45 = 5t²  ⇒  t² = 9  ⇒  t = 3 с.'},
+      {text:'Найдите скорость свободно падающего тела через 4 с после начала движения. g = 10 м/с².', unit:'м/с', answer:40,
+       solution:'v = g·t = 10·4 = 40 м/с.'},
+      {text:'Тело падает без начальной скорости с высоты 80 м. Какова его скорость у земли? g = 10 м/с².', unit:'м/с', answer:40,
+       solution:'v = √(2gh) = √(2·10·80) = √1600 = 40 м/с.'},
+      {text:'Камень падает с высоты 125 м. Найдите время падения. g = 10 м/с².', unit:'с', answer:5,
+       solution:'125 = 5t²  ⇒  t² = 25  ⇒  t = 5 с.'},
+      {text:'Груз падает с высоты 45 м. С какой скоростью он ударится о землю? g = 10 м/с².', unit:'м/с', answer:30,
+       solution:'v = √(2gh) = √(2·10·45) = √900 = 30 м/с.'},
+      {text:'Инструмент уронили с высоты 1,8 м. Сколько времени он падал? g = 10 м/с².', unit:'с', answer:0.6,
+       solution:'1,8 = 5t²  ⇒  t² = 0,36  ⇒  t = 0,6 с.'},
+      {text:'Найдите скорость свободно падающего тела через 3 с после начала движения. g = 9,8 м/с².', unit:'м/с', answer:29.4,
+       solution:'v = g·t = 9,8·3 = 29,4 м/с.'},
+      {text:'Тело брошено вертикально вверх со скоростью 20 м/с. На какую максимальную высоту оно поднимется? g = 10 м/с².', unit:'м', answer:20,
+       solution:'h = v₀²/(2g) = 400/20 = 20 м.'},
+      {text:'Тело брошено вверх со скоростью 15 м/с. Найдите максимальную высоту подъёма. g = 10 м/с².', unit:'м', answer:11.25,
+       solution:'h = v₀²/(2g) = 225/20 = 11,25 м.'},
+      {text:'Тело брошено вертикально вверх со скоростью 30 м/с. Через сколько секунд оно достигнет верхней точки? g = 10 м/с².', unit:'с', answer:3,
+       solution:'В верхней точке v = 0: v₀ − g·t = 0  ⇒  t = 30/10 = 3 с.'},
+      {text:'Тело брошено вертикально вверх со скоростью 40 м/с. Через сколько секунд оно вернётся в точку броска? g = 10 м/с².', unit:'с', answer:8,
+       solution:'Время подъёма t = 40/10 = 4 с; полное время = 2t = 8 с.'},
+      {text:'С крыши высотой 20 м бросили вниз груз со скоростью 5 м/с. С какой скоростью он упадёт на землю? g = 10 м/с².', unit:'м/с', answer:20.6,
+       solution:'v = √(v₀² + 2gh) = √(25 + 400) = √425 ≈ 20,6 м/с.'},
+      {text:'Камень брошен вниз с высоты 75 м со скоростью 10 м/с. Найдите время падения. g = 10 м/с².', unit:'с', answer:3,
+       solution:'75 = 10t + 5t²  ⇒  t² + 2t − 15 = 0  ⇒  t = 3 с (корень −5 не подходит).'},
+      {text:'Деталь падает с высоты 20 м без начальной скорости. Какова её скорость у пола? g = 10 м/с².', unit:'м/с', answer:20,
+       solution:'v = √(2gh) = √(2·10·20) = √400 = 20 м/с.'},
+      {text:'Тело падает с высоты 1,25 м. Найдите время падения. g = 10 м/с².', unit:'с', answer:0.5,
+       solution:'1,25 = 5t²  ⇒  t² = 0,25  ⇒  t = 0,5 с.'},
+      {text:'Тело падает с высоты 180 м. Сколько времени длится падение? g = 10 м/с².', unit:'с', answer:6,
+       solution:'180 = 5t²  ⇒  t² = 36  ⇒  t = 6 с.'},
+      {text:'Мяч брошен вертикально вверх со скоростью 10 м/с. На какую высоту он поднимется? g = 10 м/с².', unit:'м', answer:5,
+       solution:'h = v₀²/(2g) = 100/20 = 5 м.'},
+      {text:'Тело свободно падает 2 с. Какой путь оно пролетит? g = 10 м/с².', unit:'м', answer:20,
+       solution:'h = g·t²/2 = 10·4/2 = 20 м.'},
+      {text:'Тело свободно падает 4 с. Найдите высоту падения. g = 10 м/с².', unit:'м', answer:80,
+       solution:'h = g·t²/2 = 10·16/2 = 80 м.'},
+      {text:'Найдите скорость свободно падающего тела через 5 с после начала движения. g = 10 м/с².', unit:'м/с', answer:50,
+       solution:'v = g·t = 10·5 = 50 м/с.'},
+      {text:'Капля падает с высоты 5 м. С какой скоростью она ударится о землю? g = 10 м/с².', unit:'м/с', answer:10,
+       solution:'v = √(2gh) = √(2·10·5) = √100 = 10 м/с.'},
+      {text:'Гайка упала с высоты 19,6 м. Найдите время падения. g = 9,8 м/с².', unit:'с', answer:2,
+       solution:'19,6 = 4,9t²  ⇒  t² = 4  ⇒  t = 2 с.'},
+      {text:'Сосулька падает с крыши высотой 20 м. Сколько времени она падает? g = 10 м/с².', unit:'с', answer:2,
+       solution:'20 = 5t²  ⇒  t² = 4  ⇒  t = 2 с.'},
+      {text:'Тело брошено вверх со скоростью 8 м/с. Найдите максимальную высоту подъёма. g = 10 м/с².', unit:'м', answer:3.2,
+       solution:'h = v₀²/(2g) = 64/20 = 3,2 м.'},
+      {text:'Тело подброшено вертикально вверх со скоростью 25 м/с. На какую высоту оно поднимется? g = 10 м/с².', unit:'м', answer:31.25,
+       solution:'h = v₀²/(2g) = 625/20 = 31,25 м.'},
+      {text:'Кирпич уронили с высоты 45 м. С какой скоростью он ударится о землю? g = 10 м/с².', unit:'м/с', answer:30,
+       solution:'v = √(2gh) = √(2·10·45) = √900 = 30 м/с.'},
+      {text:'Тело падает с высоты 320 м. Найдите время падения. g = 10 м/с².', unit:'с', answer:8,
+       solution:'320 = 5t²  ⇒  t² = 64  ⇒  t = 8 с.'},
+      {text:'Найдите скорость свободно падающего тела через 6 с после начала движения. g = 9,8 м/с².', unit:'м/с', answer:58.8,
+       solution:'v = g·t = 9,8·6 = 58,8 м/с.'}
+    ]
+  };
+
+  /* =====================================================
+     СОСТОЯНИЕ
+  ===================================================== */
+  const state = {
+    name:'',
+    group:'',
+    theme:'inertia',
+    variant:0,
+    cards:[],
+    slots:[],
+    tasks:[],
+    score:0,
+    checked:false,
+    formulaSolved:false
+  };
+
+  let selectedCard = null;
+
+  const $ = function(s){ return document.querySelector(s); };
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function fmtNum(n){
+    const s = (Math.round(n * 1000) / 1000).toString().replace('.', ',');
+    return s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  }
+
+  function formatDate(d){
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth() + 1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    return dd + '.' + mm + '.' + yyyy;
+  }
+
+  function currentFormula(){
+    return FORMULAS[state.theme].variants[state.variant];
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  }
+
+  /* Отрисовка эталонной формулы в виде чипов */
+  function formulaChips(target){
+    let html = '';
+    target.forEach(function(t){
+      html += '<span class="ans-chip">' + escapeHtml(t) + '</span>';
+    });
+    return html;
+  }
+
+  /* =====================================================
+     ЭКРАН 1 — ИДЕНТИФИКАЦИЯ
+  ===================================================== */
+  (function restoreStudent(){
+    try{
+      const saved = JSON.parse(sessionStorage.getItem('physicsStudent') || 'null');
+      if(saved && saved.name){
+        $('#inp-surname').value = saved.name;
+        $('#inp-group').value = saved.group || '';
+      }
+    }catch(e){ /* ignore */ }
+  })();
+
+  $('#btn-start').addEventListener('click', function(){
+    const name = $('#inp-surname').value.trim();
+    const group = $('#inp-group').value.trim();
+    const errEl = $('#login-err');
+
+    if(!name || !group){
+      errEl.textContent = 'Заполните оба поля: фамилию и номер группы.';
+      return;
+    }
+    errEl.textContent = '';
+    state.name = name;
+    state.group = group;
+
+    const data = JSON.stringify({name: name, group: group});
+    try{ sessionStorage.setItem('physicsStudent', data); }catch(e){}
+    try{ localStorage.setItem('physicsStudent', data); }catch(e){}
+
+    $('#screen-login').classList.add('hidden');
+    $('#screen-formula').classList.remove('hidden');
+    buildTheme('inertia');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  /* =====================================================
+     ЭКРАН 2 — КОНСТРУКТОР ФОРМУЛЫ
+  ===================================================== */
+  function renderThemeTabs(){
+    document.querySelectorAll('.btn-tab').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.theme === state.theme);
+    });
+  }
+
+  function renderVariantSelect(){
+    const sel = $('#variant-select');
+    sel.innerHTML = '';
+    FORMULAS[state.theme].variants.forEach(function(v, i){
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = v.label;
+      if(i === state.variant) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  function buildTheme(theme){
+    state.theme = theme;
+    state.variant = 0;
+    renderThemeTabs();
+    renderVariantSelect();
+    selectVariant(0, true);
+  }
+
+  function selectVariant(index, skipSelect){
+    state.variant = index;
+    if(!skipSelect){
+      const sel = $('#variant-select');
+      if(sel) sel.value = String(index);
+    }
+
+    const def = currentFormula();
+    state.formulaSolved = false;
+    selectedCard = null;
+
+    state.slots = new Array(def.target.length).fill(null);
+
+    const prefix = state.theme + '_v' + index + '_';
+    state.cards = shuffle(def.pool).map(function(text, k){
+      return { id: prefix + k, text: text };
+    });
+
+    $('#formula-prompt').textContent = def.prompt;
+    setFormulaMsg('', '');
+    renderFormula();
+  }
+
+  function getCard(id){
+    for(let i = 0; i < state.cards.length; i++){
+      if(state.cards[i].id === id) return state.cards[i];
+    }
+    return null;
+  }
+
+  function renderFormula(){
+    const def = currentFormula();
+
+    /* --- слоты --- */
+    const slotsEl = $('#slots');
+    slotsEl.innerHTML = '';
+
+    state.slots.forEach(function(cardId, i){
+      const slot = document.createElement('div');
+      slot.className = 'slot' + (cardId ? ' filled' : '');
+      slot.dataset.index = i;
+
+      const valueSpan = document.createElement('span');
+      valueSpan.className = 'slot-value';
+      const card = cardId ? getCard(cardId) : null;
+      valueSpan.textContent = card ? card.text : '';
+
+      const tip = document.createElement('span');
+      tip.className = 'tip';
+      tip.textContent = def.hints[i] || '';
+
+      slot.appendChild(valueSpan);
+      slot.appendChild(tip);
+
+      slot.addEventListener('dragover', function(e){
+        e.preventDefault();
+        slot.classList.add('over');
+      });
+      slot.addEventListener('dragleave', function(){
+        slot.classList.remove('over');
+      });
+      slot.addEventListener('drop', function(e){
+        e.preventDefault();
+        slot.classList.remove('over');
+        const id = e.dataTransfer.getData('text/plain');
+        placeCard(id, i);
+      });
+      slot.addEventListener('click', function(){
+        onSlotClick(i);
+      });
+
+      slotsEl.appendChild(slot);
+    });
+
+    /* --- карточки --- */
+    const used = {};
+    state.slots.forEach(function(id){ if(id) used[id] = true; });
+
+    const cardsEl = $('#cards');
+    cardsEl.innerHTML = '';
+
+    state.cards.forEach(function(c){
+      if(used[c.id]) return;
+
+      const el = document.createElement('div');
+      el.className = 'fcard' + (selectedCard === c.id ? ' selected' : '');
+      el.textContent = c.text;
+      el.draggable = true;
+      el.dataset.id = c.id;
+
+      el.addEventListener('dragstart', function(e){
+        e.dataTransfer.setData('text/plain', c.id);
+        e.dataTransfer.effectAllowed = 'move';
+        el.classList.add('dragging');
+      });
+      el.addEventListener('dragend', function(){
+        el.classList.remove('dragging');
+      });
+      el.addEventListener('click', function(){
+        onCardClick(c.id);
+      });
+
+      cardsEl.appendChild(el);
+    });
+  }
+
+  function placeCard(id, index){
+    if(!id || !getCard(id)) return;
+
+    const current = state.slots.indexOf(id);
+    if(current !== -1) state.slots[current] = null;
+
+    state.slots[index] = id;
+    selectedCard = null;
+    renderFormula();
+  }
+
+  function onCardClick(id){
+    selectedCard = (selectedCard === id) ? null : id;
+    document.querySelectorAll('.fcard').forEach(function(el){
+      el.classList.toggle('selected', el.dataset.id === selectedCard);
+    });
+  }
+
+  function onSlotClick(index){
+    if(selectedCard){
+      placeCard(selectedCard, index);
+      return;
+    }
+    if(state.slots[index]){
+      state.slots[index] = null;
+      renderFormula();
+    }
+  }
+
+  function setFormulaMsg(html, type){
+    const el = $('#formula-msg');
+    el.className = 'msg' + (type ? ' ' + type : '');
+    el.innerHTML = html;
+  }
+
+  function checkFormula(){
+    const def = currentFormula();
+    const slotEls = document.querySelectorAll('#slots .slot');
+    slotEls.forEach(function(s){ s.classList.remove('error'); });
+
+    /* незаполненные слоты */
+    const empty = [];
+    state.slots.forEach(function(id, i){ if(!id) empty.push(i); });
+
+    if(empty.length){
+      empty.forEach(function(i){ slotEls[i].classList.add('error'); });
+      let html = '<b>Формула собрана не полностью.</b> Заполните все ' + def.target.length + ' слотов.';
+      html += '<div class="correct-answer"><span class="label">Правильный ответ:</span>' + formulaChips(def.target) + '</div>';
+      setFormulaMsg(html, 'err');
+      return;
+    }
+
+    /* сравнение с эталоном */
+    const wrong = [];
+    state.slots.forEach(function(id, i){
+      const card = getCard(id);
+      if(!card || card.text !== def.target[i]){
+        wrong.push(i);
+        slotEls[i].classList.add('error');
+      }
+    });
+
+    if(wrong.length){
+      let html = '<b>Есть ошибки в сборке.</b> Наведите курсор на красный слот — появится подсказка.<ul>';
+      wrong.forEach(function(i){
+        html += '<li><b>Позиция ' + (i + 1) + ':</b> ' + def.hints[i] + '</li>';
+      });
+      html += '</ul>';
+      html += '<div class="correct-answer"><span class="label">Правильный ответ:</span>' + formulaChips(def.target) + '</div>';
+      setFormulaMsg(html, 'err');
+      return;
+    }
+
+    /* успех */
+    state.formulaSolved = true;
+    setFormulaMsg('Формула собрана верно! Переходим к задачам…', 'ok');
+
+    setTimeout(function(){
+      startTasks();
+    }, 700);
+  }
+
+  document.querySelectorAll('.btn-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(btn.dataset.theme === state.theme) return;
+      buildTheme(btn.dataset.theme);
+    });
+  });
+
+  $('#variant-select').addEventListener('change', function(e){
+    const idx = parseInt(e.target.value, 10);
+    if(isNaN(idx) || idx === state.variant) return;
+    selectVariant(idx, true);
+  });
+
+  $('#btn-check-formula').addEventListener('click', checkFormula);
+
+  $('#btn-reset-formula').addEventListener('click', function(){
+    selectVariant(state.variant, true);
+  });
+
+  /* =====================================================
+     ЭКРАН 3 — ЗАДАЧИ
+  ===================================================== */
+  function startTasks(){
+    const bank = shuffle(BANK[state.theme]).slice(0, 5);
+    state.tasks = bank;
+    state.score = 0;
+    state.checked = false;
+
+    $('#tasks-theme').textContent =
+      'Тема: «' + FORMULAS[state.theme].label + '» — формула «' + currentFormula().label + '». ' +
+      'Введите числовой ответ (десятичную часть отделяйте запятой или точкой).';
+
+    renderTasks();
+
+    $('#screen-formula').classList.add('hidden');
+    $('#screen-tasks').classList.remove('hidden');
+    $('#result').className = 'result hidden';
+    $('#report').classList.add('hidden');
+    $('#toast').classList.remove('show');
+
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function renderTasks(){
+    const wrap = $('#tasks');
+    wrap.innerHTML = '';
+
+    state.tasks.forEach(function(t, i){
+      const card = document.createElement('div');
+      card.className = 'task';
+      card.id = 'task-' + i;
+
+      const head = document.createElement('div');
+      head.className = 'task-head';
+      head.textContent = 'Задача ' + (i + 1);
+
+      const text = document.createElement('p');
+      text.className = 'task-text';
+      text.textContent = t.text;
+
+      const ansRow = document.createElement('div');
+      ansRow.className = 'task-answer';
+
+      const label = document.createElement('label');
+      label.setAttribute('for', 'inp-' + i);
+      label.textContent = 'Ответ:';
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'inp-' + i;
+      input.setAttribute('inputmode', 'decimal');
+      input.setAttribute('autocomplete', 'off');
+      input.placeholder = 'число';
+
+      const unit = document.createElement('span');
+      unit.className = 'unit';
+      unit.textContent = t.unit;
+
+      ansRow.appendChild(label);
+      ansRow.appendChild(input);
+      ansRow.appendChild(unit);
+
+      const fb = document.createElement('div');
+      fb.className = 'task-feedback';
+      fb.id = 'fb-' + i;
+
+      card.appendChild(head);
+      card.appendChild(text);
+      card.appendChild(ansRow);
+      card.appendChild(fb);
+
+      wrap.appendChild(card);
+    });
+  }
+
+  function checkTasks(){
+    if(state.checked) return;
+
+    let score = 0;
+
+    state.tasks.forEach(function(t, i){
+      const input = document.getElementById('inp-' + i);
+      const card = document.getElementById('task-' + i);
+      const fb = document.getElementById('fb-' + i);
+
+      const raw = (input.value || '').replace(/\s/g, '').replace(',', '.');
+      const val = parseFloat(raw);
+      const tol = Math.max(Math.abs(t.answer) * 0.02, 0.05);
+      const ok = !isNaN(val) && Math.abs(val - t.answer) <= tol;
+
+      if(ok){
+        score++;
+        card.classList.add('correct');
+        fb.innerHTML = '<span class="ok">✔ Верно!</span>';
+      }else{
+        card.classList.add('wrong');
+        fb.innerHTML =
+          '<span class="bad">✘ Неверно. Правильный ответ: ' + fmtNum(t.answer) + ' ' + t.unit + '</span>' +
+          '<div class="sol"><b>Решение:</b> ' + t.solution + '</div>';
+      }
+
+      input.disabled = true;
+    });
+
+    state.score = score;
+    state.checked = true;
+
+    showResult(score);
+  }
+
+  function showResult(score){
+    const res = $('#result');
+    res.classList.remove('hidden');
+    const total = state.tasks.length;
+
+    if(score === total){
+      res.className = 'result result-perfect';
+      res.innerHTML =
+        '<div class="big">Молодец!</div>' +
+        '<p>Все ' + total + ' задач решены верно — ' + score + ' из ' + total + ' баллов. ' +
+        'Тема усвоена отлично, так держать!</p>';
+    }else{
+      res.className = 'result result-mid';
+      res.innerHTML =
+        '<div class="big">' + score + ' из ' + total + ' баллов</div>' +
+        '<p>Разберите решения задач, отмеченных красным, и повторите формулы. ' +
+        'Правильные ответы и пояснения показаны под каждой задачей.</p>';
+    }
+
+    buildReport(score, total);
+  }
+
+  function buildReport(score, total){
+    const comment = (score === total)
+      ? 'Молодец!'
+      : 'Требуется дополнительная отработка темы';
+    const date = formatDate(new Date());
+
+    const csv = state.name + ',' + state.group + ',,' + score + ',' + date + ',' + comment;
+    $('#csv').textContent = csv;
+
+    const table = $('#rep-table');
+    table.innerHTML =
+      '<tr><th>Фамилия</th><th>Группа</th><th>Оценка</th><th>Дата</th><th>Комментарий</th></tr>' +
+      '<tr><td>' + escapeHtml(state.name) + '</td>' +
+      '<td>' + escapeHtml(state.group) + '</td>' +
+      '<td>' + score + ' / ' + total + '</td>' +
+      '<td>' + date + '</td>' +
+      '<td>' + comment + '</td></tr>';
+
+    $('#report').classList.remove('hidden');
+  }
+
+  $('#btn-check-tasks').addEventListener('click', checkTasks);
+
+  $('#btn-back').addEventListener('click', function(){
+    state.tasks = [];
+    state.checked = false;
+    state.score = 0;
+    $('#tasks').innerHTML = '';
+    $('#result').className = 'result hidden';
+    $('#report').classList.add('hidden');
+    $('#screen-tasks').classList.add('hidden');
+    $('#screen-formula').classList.remove('hidden');
+    setFormulaMsg('', '');
+    renderFormula();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+
+  /* =====================================================
+     КОПИРОВАНИЕ CSV
+  ===================================================== */
+  $('#btn-copy').addEventListener('click', function(){
+    const text = $('#csv').textContent;
+    const toast = $('#toast');
+
+    function done(){
+      toast.classList.add('show');
+      setTimeout(function(){ toast.classList.remove('show'); }, 2000);
+    }
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(function(){
+        fallbackCopy(text); done();
+      });
+    }else{
+      fallbackCopy(text); done();
+    }
+  });
+
+  function fallbackCopy(text){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand('copy'); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  /* =====================================================
+     СТАРТОВАЯ ИНИЦИАЛИЗАЦИЯ
+  ===================================================== */
+  buildTheme('inertia');
+
+})();
+</script>
+</body>
+</html>
